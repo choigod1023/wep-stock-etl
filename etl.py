@@ -27,11 +27,16 @@ def fetch_and_extract():
         z = f"data/part_{i}.zip"
         log(f"[{i+1}/{len(URLS)}] 다운로드")
         subprocess.run(["curl", "-fsSL", "--retry", "3", "-o", z, url], check=True)
+        size = os.path.getsize(z)
+        ftype = subprocess.run(["file", "-b", z], capture_output=True, text=True).stdout.strip()
+        log(f"  part_{i}: {size/1e6:.1f}MB / {ftype}")
         try:
             with zipfile.ZipFile(z) as zf:
+                names = zf.namelist()
+                log(f"    zip 내부 {len(names)}개: {names[:5]}")
                 zf.extractall(f"data/ext_{i}")
         except zipfile.BadZipFile:
-            log(f"  ⚠ zip 아님(part_{i}) — 헤더 확인 필요, 건너뜀")
+            log(f"  ⚠ zip 아님(part_{i}) — 원문 그대로 취급")
     # 중첩 zip 한 겹 더
     for nz in glob.glob("data/ext_*/**/*.zip", recursive=True):
         try:
@@ -39,9 +44,16 @@ def fetch_and_extract():
                 zf.extractall(os.path.dirname(nz))
         except zipfile.BadZipFile:
             pass
+    # 진단: 받은/푼 전체 파일 목록
+    allf = [f for f in glob.glob("data/**/*", recursive=True) if os.path.isfile(f)]
+    log(f"=== 전체 파일 {len(allf)}개 ===")
+    for f in sorted(allf):
+        log(f"    {f}  ({os.path.getsize(f)/1e6:.1f}MB)")
 
 
 def read_any(path) -> pd.DataFrame:
+    if path.lower().endswith(".parquet"):
+        return pd.read_parquet(path).astype(str)
     if path.lower().endswith((".xlsx", ".xls")):
         return pd.read_excel(path, dtype=str)
     last = None
@@ -61,7 +73,7 @@ def sig(cols):
 def main():
     fetch_and_extract()
     files = sorted(f for f in glob.glob("data/ext_*/**/*", recursive=True)
-                   if f.lower().endswith((".csv", ".tsv", ".txt", ".xlsx", ".xls")))
+                   if f.lower().endswith((".csv", ".tsv", ".txt", ".xlsx", ".xls", ".parquet")))
     if not files:
         log("데이터 파일 없음 — 다운로드/해제 실패. 종료."); sys.exit(1)
     log(f"데이터 파일 {len(files)}개 발견")
