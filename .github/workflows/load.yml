@@ -1,4 +1,4 @@
-name: Load WeP-Stock parquet → Neon
+name: Load WeP-Stock → Neon
 on:
   workflow_dispatch: {}
 jobs:
@@ -14,4 +14,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATA_URLS: ${{ secrets.DATA_URLS }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
         run: python etl.py

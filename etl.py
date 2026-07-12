@@ -96,6 +96,33 @@ def main():
     log("=== 적재 요약 ===")
     for t, n in counts.items():
         log(f"  {t}: {n:,} 행")
+    notify(counts)
+
+
+def notify(counts):
+    """완료 시 Gmail 알림 (앱 비밀번호 있을 때만, 실패해도 잡은 안 죽임)."""
+    addr = os.environ.get("GMAIL_ADDRESS")
+    pw = os.environ.get("GMAIL_APP_PASSWORD")
+    to = os.environ.get("NOTIFY_TO") or addr
+    if not (addr and pw):
+        log("이메일 알림 skip (GMAIL_ADDRESS/GMAIL_APP_PASSWORD 미설정)")
+        return
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        body = ("WeP-Stock 원천 데이터 → Neon 적재가 완료되었습니다.\n\n"
+                + "\n".join(f"  {t}: {n:,} 행" for t, n in counts.items())
+                + "\n\n(자동 발송: GitHub Actions ETL)")
+        msg = MIMEText(body, _charset="utf-8")
+        msg["Subject"] = "[WeP-Stock] DB 적재 완료 ✅"
+        msg["From"] = addr
+        msg["To"] = to
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+            s.login(addr, pw)
+            s.sendmail(addr, [to], msg.as_string())
+        log(f"이메일 알림 전송 → {to}")
+    except Exception as e:
+        log(f"이메일 알림 실패(무시): {e}")
 
 
 if __name__ == "__main__":
