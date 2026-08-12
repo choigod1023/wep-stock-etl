@@ -1,5 +1,7 @@
 # wep-stock-etl
 
+**한국어** · [日本語](README.ja.md) · [English](README.en.md)
+
 보건소 의료물품 재고예측(WeP-Stock) 프로젝트의 **원천 데이터 적재 ETL**.
 SSIS 대용량첨부 형태의 zip 원본을 내려받아 압축을 풀고, 스키마별로 통합해 **Neon(PostgreSQL)** 에 원문 그대로 적재합니다.
 
