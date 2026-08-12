@@ -111,8 +111,8 @@ requirements.txt             # pandas, psycopg2-binary, openpyxl, pyarrow
 | Item | Detail |
 |---|---|
 | **Contribution share** | **100%** (solo development) |
-| **Commits** | 4 / 4 (mine / all human commits) |
+| **Commits** | 6 / 6 (mine / all human commits) |
 | **Contributors** | 1 |
 | **AI coding tool** | Claude Code |
 
-<sub>Contribution share is counted by commit author email; bot and automation commits are excluded.</sub>
+<sub>Counting basis: commits reachable from **every branch** on origin (merge commits and empty commits excluded), counted by commit author email with one person’s multiple addresses merged; bot and automation commits are excluded.</sub>
